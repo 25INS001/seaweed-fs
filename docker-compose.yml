@@ -1,0 +1,186 @@
+services:
+  master:
+    image: 'chrislusf/seaweedfs:latest'
+    container_name: master-fs8k08g4cckc4gogo88swssk
+    command: 'master -ip=master -port=9333'
+    ports:
+      - '9333:9333'
+      - '23646:23646'
+    restart: unless-stopped
+    labels:
+      - coolify.managed=true
+      - coolify.version=4.0.0-beta.460
+      - coolify.serviceId=8
+      - coolify.type=service
+      - coolify.name=master-fs8k08g4cckc4gogo88swssk
+      - coolify.resourceName=seaweed-fs
+      - coolify.projectName=seaweed-s3
+      - coolify.serviceName=master
+      - coolify.environmentName=production
+      - coolify.pullRequestId=0
+      - coolify.service.subId=10
+      - coolify.service.subType=application
+      - coolify.service.subName=master
+    networks:
+      fs8k08g4cckc4gogo88swssk: null
+    environment:
+      COOLIFY_RESOURCE_UUID: fs8k08g4cckc4gogo88swssk
+      COOLIFY_CONTAINER_NAME: master-fs8k08g4cckc4gogo88swssk
+      SERVICE_NAME_MASTER: master
+      SERVICE_NAME_VOLUME: volume
+      SERVICE_NAME_FILER: filer
+      SERVICE_NAME_S3: s3
+      SERVICE_NAME_WEBDAV: webdav
+    env_file:
+      - .env
+  volume:
+    image: 'chrislusf/seaweedfs:latest'
+    container_name: volume-fs8k08g4cckc4gogo88swssk
+    command: 'volume -mserver=master:9333 -port=9340 -dir=/data'
+    volumes:
+      - '/data/coolify/services/fs8k08g4cckc4gogo88swssk/seaweed-data:/data'
+    ports:
+      - '9340:9340'
+    depends_on:
+      - master
+    restart: unless-stopped
+    labels:
+      - coolify.managed=true
+      - coolify.version=4.0.0-beta.460
+      - coolify.serviceId=8
+      - coolify.type=service
+      - coolify.name=volume-fs8k08g4cckc4gogo88swssk
+      - coolify.resourceName=seaweed-fs
+      - coolify.projectName=seaweed-s3
+      - coolify.serviceName=volume
+      - coolify.environmentName=production
+      - coolify.pullRequestId=0
+      - coolify.service.subId=11
+      - coolify.service.subType=application
+      - coolify.service.subName=volume
+    networks:
+      fs8k08g4cckc4gogo88swssk: null
+    environment:
+      COOLIFY_RESOURCE_UUID: fs8k08g4cckc4gogo88swssk
+      COOLIFY_CONTAINER_NAME: volume-fs8k08g4cckc4gogo88swssk
+      SERVICE_NAME_MASTER: master
+      SERVICE_NAME_VOLUME: volume
+      SERVICE_NAME_FILER: filer
+      SERVICE_NAME_S3: s3
+      SERVICE_NAME_WEBDAV: webdav
+    env_file:
+      - .env
+  filer:
+    image: 'chrislusf/seaweedfs:latest'
+    container_name: filer-fs8k08g4cckc4gogo88swssk
+    command: 'filer -master=master:9333 -port=8888'
+    volumes:
+      - '/data/coolify/services/fs8k08g4cckc4gogo88swssk/filer-data:/data'
+    ports:
+      - '8888:8888'
+    depends_on:
+      - master
+      - volume
+    restart: unless-stopped
+    labels:
+      - coolify.managed=true
+      - coolify.version=4.0.0-beta.460
+      - coolify.serviceId=8
+      - coolify.type=service
+      - coolify.name=filer-fs8k08g4cckc4gogo88swssk
+      - coolify.resourceName=seaweed-fs
+      - coolify.projectName=seaweed-s3
+      - coolify.serviceName=filer
+      - coolify.environmentName=production
+      - coolify.pullRequestId=0
+      - coolify.service.subId=12
+      - coolify.service.subType=application
+      - coolify.service.subName=filer
+    networks:
+      fs8k08g4cckc4gogo88swssk: null
+    environment:
+      COOLIFY_RESOURCE_UUID: fs8k08g4cckc4gogo88swssk
+      COOLIFY_CONTAINER_NAME: filer-fs8k08g4cckc4gogo88swssk
+      SERVICE_NAME_MASTER: master
+      SERVICE_NAME_VOLUME: volume
+      SERVICE_NAME_FILER: filer
+      SERVICE_NAME_S3: s3
+      SERVICE_NAME_WEBDAV: webdav
+    env_file:
+      - .env
+  s3:
+    image: 'chrislusf/seaweedfs:latest'
+    container_name: s3-fs8k08g4cckc4gogo88swssk
+    command: 's3 -filer=filer:8888 -port=8333 -config=/config/s3.json'
+    ports:
+      - '8333:8333'
+    volumes:
+      - '/data/coolify/services/fs8k08g4cckc4gogo88swssk/config:/config'
+    depends_on:
+      - filer
+    restart: unless-stopped
+    labels:
+      - coolify.managed=true
+      - coolify.version=4.0.0-beta.460
+      - coolify.serviceId=8
+      - coolify.type=service
+      - coolify.name=s3-fs8k08g4cckc4gogo88swssk
+      - coolify.resourceName=seaweed-fs
+      - coolify.projectName=seaweed-s3
+      - coolify.serviceName=s3
+      - coolify.environmentName=production
+      - coolify.pullRequestId=0
+      - coolify.service.subId=13
+      - coolify.service.subType=application
+      - coolify.service.subName=s3
+    networks:
+      fs8k08g4cckc4gogo88swssk: null
+    environment:
+      COOLIFY_RESOURCE_UUID: fs8k08g4cckc4gogo88swssk
+      COOLIFY_CONTAINER_NAME: s3-fs8k08g4cckc4gogo88swssk
+      SERVICE_NAME_MASTER: master
+      SERVICE_NAME_VOLUME: volume
+      SERVICE_NAME_FILER: filer
+      SERVICE_NAME_S3: s3
+      SERVICE_NAME_WEBDAV: webdav
+    env_file:
+      - .env
+  webdav:
+    image: 'chrislusf/seaweedfs:latest'
+    container_name: webdav-fs8k08g4cckc4gogo88swssk
+    command: 'webdav -filer=filer:8888 -port=7333'
+    ports:
+      - '7333:7333'
+    depends_on:
+      - filer
+    restart: unless-stopped
+    labels:
+      - coolify.managed=true
+      - coolify.version=4.0.0-beta.460
+      - coolify.serviceId=8
+      - coolify.type=service
+      - coolify.name=webdav-fs8k08g4cckc4gogo88swssk
+      - coolify.resourceName=seaweed-fs
+      - coolify.projectName=seaweed-s3
+      - coolify.serviceName=webdav
+      - coolify.environmentName=production
+      - coolify.pullRequestId=0
+      - coolify.service.subId=14
+      - coolify.service.subType=application
+      - coolify.service.subName=webdav
+    networks:
+      fs8k08g4cckc4gogo88swssk: null
+    environment:
+      COOLIFY_RESOURCE_UUID: fs8k08g4cckc4gogo88swssk
+      COOLIFY_CONTAINER_NAME: webdav-fs8k08g4cckc4gogo88swssk
+      SERVICE_NAME_MASTER: master
+      SERVICE_NAME_VOLUME: volume
+      SERVICE_NAME_FILER: filer
+      SERVICE_NAME_S3: s3
+      SERVICE_NAME_WEBDAV: webdav
+    env_file:
+      - .env
+networks:
+  fs8k08g4cckc4gogo88swssk:
+    name: fs8k08g4cckc4gogo88swssk
+    external: true

@@ -1,0 +1,24 @@
+{
+  "identities": [
+    {
+      "name": "admin",
+      "credentials": [
+        {
+          "accessKey": "SEAWEEDKEY",
+          "secretKey": "SEAWEEDSECRET"
+        }
+      ],
+      "actions": [
+        "Read",
+        "Write",
+        "List",
+        "Tagging",
+        "Admin"
+      ]
+    },
+    {
+      "name": "public-read",
+      "actions": ["Read"]
+    } 
+  ]
+}
