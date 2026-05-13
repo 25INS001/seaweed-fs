@@ -1,0 +1,39 @@
+name: seaweed-fs config CI
+
+on:
+  pull_request:
+    branches: [prod-c, dev-c]
+  push:
+    branches: [prod-c, dev-c]
+  workflow_dispatch:
+
+jobs:
+  validate:
+    name: Validate SeaweedFS config
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate docker compose file
+        run: docker compose -f docker-compose.yml config >/tmp/seaweed-compose.rendered.yml
+      - name: Validate S3 identity config
+        shell: python
+        run: |
+          import json
+          from pathlib import Path
+
+          config = json.loads(Path("config/s3.json").read_text())
+          identities = config.get("identities")
+          assert isinstance(identities, list) and identities, "identities must be a non-empty list"
+
+          for identity in identities:
+              assert identity.get("name"), "every identity needs a name"
+              actions = identity.get("actions")
+              assert isinstance(actions, list) and actions, f"{identity['name']} must declare actions"
+
+              credentials = identity.get("credentials", [])
+              assert isinstance(credentials, list), f"{identity['name']} credentials must be a list"
+              for credential in credentials:
+                  assert credential.get("accessKey"), f"{identity['name']} has a credential without accessKey"
+                  assert credential.get("secretKey"), f"{identity['name']} has a credential without secretKey"
+
+          print(f"Validated {len(identities)} SeaweedFS S3 identities without printing secrets.")
