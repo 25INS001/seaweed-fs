@@ -1,0 +1,16 @@
+# -----------------------------------------------------------------------------
+# Secrets — never commit these
+# -----------------------------------------------------------------------------
+.env
+.env.*
+!.env.example
+*.env
+!*.env.example
+
+# Rendered from config/s3.json.template — contains the S3 secret key
+config/s3.json
+
+# TLS material
+*.pem
+*.key
+*.crt
