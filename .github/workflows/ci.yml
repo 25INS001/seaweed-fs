@@ -13,15 +13,31 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
+      - name: Create .env for compose
+        # .env is no longer tracked (it held live credentials) but every
+        # service in docker-compose.yml still declares `env_file: .env`, so
+        # compose cannot even parse the file without one. These are throwaway
+        # CI values.
+        run: |
+          cp .env.example .env
+          sed -i 's/^AWS_ACCESS_KEY_ID=$/AWS_ACCESS_KEY_ID=ci-access-key/' .env
+          sed -i 's/^AWS_SECRET_ACCESS_KEY=$/AWS_SECRET_ACCESS_KEY=ci-secret-key/' .env
       - name: Validate docker compose file
         run: docker compose -f docker-compose.yml config >/tmp/seaweed-compose.rendered.yml
+      - name: Render S3 identity config from its template
+        # config/s3.json is generated at deploy time and is not tracked. Render
+        # it the same way the deployment does, so this job exercises the real
+        # path rather than a checked-in copy.
+        run: |
+          set -a; . ./.env; set +a
+          envsubst < config/s3.json.template > /tmp/s3.json
       - name: Validate S3 identity config
         shell: python
         run: |
           import json
           from pathlib import Path
 
-          config = json.loads(Path("config/s3.json").read_text())
+          config = json.loads(Path("/tmp/s3.json").read_text())
           identities = config.get("identities")
           assert isinstance(identities, list) and identities, "identities must be a non-empty list"
 
