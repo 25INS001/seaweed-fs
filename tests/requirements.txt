@@ -1,0 +1,3 @@
+# Config validation only.
+pytest>=7.4
+requests>=2.31
